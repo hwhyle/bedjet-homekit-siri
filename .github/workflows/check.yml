@@ -1,0 +1,27 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax check
+        run: python3 -m py_compile scripts/*.py
+      - name: Generate from fixture
+        run: |
+          python3 scripts/generate_config.py \
+            --from examples/discovered.example.json \
+            --side-name "My Side" \
+            --fan-name "My BedJet" \
+            --out /tmp/bedjet-generated
+          test -s /tmp/bedjet-generated/bedjet_siri.yaml
+          test -s /tmp/bedjet-generated/scripts.yaml
+          grep -q 'climate.bedjet_proxy_my_bedjet' /tmp/bedjet-generated/bedjet_siri.yaml
+          grep -q 'CHANGE_ME' /tmp/bedjet-generated/bedjet_siri.yaml && exit 1 || true

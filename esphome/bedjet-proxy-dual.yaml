@@ -1,0 +1,118 @@
+# ESPHome config for two BedJet V3 units (one per side of the bed).
+# If you only have one unit, use bedjet-proxy.yaml instead.
+#
+# Two simultaneous BLE clients can overwhelm an ESP32 during OTA. Disconnect
+# switches are included, and ota.on_begin turns them off automatically.
+# Official docs: https://esphome.io/components/climate/bedjet/
+
+substitutions:
+  device_name: bedjet-proxy
+  board: esp32dev
+
+  # Paste MACs from scripts/discover_bedjet_ble.py (or from ESPHome logs).
+  bedjet_a_mac: "AA:BB:CC:DD:EE:FF"
+  bedjet_a_name: "My BedJet"
+  bedjet_b_mac: "11:22:33:44:55:66"
+  bedjet_b_name: "Other BedJet"
+
+esphome:
+  name: ${device_name}
+  # Intentionally no device-level friendly_name — keep entity names short
+  # for Siri.
+
+esp32:
+  board: ${board}
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+    on_begin:
+      then:
+        - logger.log: "Disconnecting BedJet BLE clients for OTA..."
+        - switch.turn_off: bedjet_a_ble
+        - switch.turn_off: bedjet_b_ble
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "${device_name} Fallback"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+esp32_ble_tracker:
+
+ble_client:
+  - mac_address: ${bedjet_a_mac}
+    id: bedjet_ble_a
+  - mac_address: ${bedjet_b_mac}
+    id: bedjet_ble_b
+
+bedjet:
+  - id: bedjet_a
+    ble_client_id: bedjet_ble_a
+    time_id: ha_time
+  - id: bedjet_b
+    ble_client_id: bedjet_ble_b
+    time_id: ha_time
+
+climate:
+  - platform: bedjet
+    id: bedjet_a_climate
+    name: "${bedjet_a_name}"
+    bedjet_id: bedjet_a
+  - platform: bedjet
+    id: bedjet_b_climate
+    name: "${bedjet_b_name}"
+    bedjet_id: bedjet_b
+
+fan:
+  - platform: bedjet
+    id: bedjet_a_fan
+    name: "${bedjet_a_name}"
+    bedjet_id: bedjet_a
+  - platform: bedjet
+    id: bedjet_b_fan
+    name: "${bedjet_b_name}"
+    bedjet_id: bedjet_b
+
+sensor:
+  - platform: bedjet
+    bedjet_id: bedjet_a
+    outlet_temperature:
+      name: "${bedjet_a_name} Outlet Temperature"
+    ambient_temperature:
+      name: "${bedjet_a_name} Ambient Temperature"
+  - platform: bedjet
+    bedjet_id: bedjet_b
+    outlet_temperature:
+      name: "${bedjet_b_name} Outlet Temperature"
+    ambient_temperature:
+      name: "${bedjet_b_name} Ambient Temperature"
+
+switch:
+  - platform: ble_client
+    ble_client_id: bedjet_ble_a
+    id: bedjet_a_ble
+    name: "${bedjet_a_name} BLE Connection"
+  - platform: ble_client
+    ble_client_id: bedjet_ble_b
+    id: bedjet_b_ble
+    name: "${bedjet_b_name} BLE Connection"
+
+# Optional — not required for BedJet control:
+# bluetooth_proxy:
+#   active: true

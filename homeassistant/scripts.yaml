@@ -1,0 +1,60 @@
+# Stand-alone scripts.yaml fragment (no top-level `script:` key).
+# Prefer the generated file from scripts/generate_config.py, or the package
+# in packages/bedjet_siri.yaml. If you already include a scripts.yaml from
+# configuration.yaml (`script: !include scripts.yaml`), merge these keys in
+# after replacing CHANGE_ME.
+
+heat_my_side:
+  alias: "Heat My Side"
+  icon: mdi:heat-wave
+  mode: restart
+  description: "Set My BedJet to heat at 90°F with fan at 40%."
+  sequence:
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.CHANGE_ME
+      data:
+        hvac_mode: heat
+    - action: climate.set_temperature
+      target:
+        entity_id: climate.CHANGE_ME
+      data:
+        temperature: 90
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.CHANGE_ME
+      data:
+        fan_mode: "40%"
+    - action: fan.set_percentage
+      target:
+        entity_id: fan.CHANGE_ME
+      data:
+        percentage: 40
+
+cool_my_side:
+  alias: "Cool My Side"
+  icon: mdi:snowflake
+  mode: restart
+  description: "Set My BedJet to cool (fan_only) at the lowest temp (66°F) with fan at 40%."
+  sequence:
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.CHANGE_ME
+      data:
+        hvac_mode: fan_only
+    - action: climate.set_temperature
+      target:
+        entity_id: climate.CHANGE_ME
+      data:
+        temperature: 66
+      continue_on_error: true
+    - action: climate.set_fan_mode
+      target:
+        entity_id: climate.CHANGE_ME
+      data:
+        fan_mode: "40%"
+    - action: fan.set_percentage
+      target:
+        entity_id: fan.CHANGE_ME
+      data:
+        percentage: 40

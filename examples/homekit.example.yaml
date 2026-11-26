@@ -1,0 +1,20 @@
+# Optional YAML alternative to the HomeKit Bridge UI flow in the README.
+# If you already have a HomeKit Bridge, add a *new* list entry rather
+# than editing an existing one, so other accessories stay untouched.
+# A dedicated port avoids colliding with an existing bridge.
+
+homekit:
+  - name: BedJet Bridge
+    port: 21065
+    filter:
+      include_entities:
+        - script.heat_my_side
+        - script.cool_my_side
+        - fan.bedjet_proxy_my_bedjet
+    entity_config:
+      fan.bedjet_proxy_my_bedjet:
+        name: My BedJet
+      script.heat_my_side:
+        name: Heat My Side
+      script.cool_my_side:
+        name: Cool My Side

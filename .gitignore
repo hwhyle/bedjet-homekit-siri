@@ -1,0 +1,29 @@
+# Secrets and local config — never commit these
+esphome/secrets.yaml
+secrets.yaml
+.env
+.env.*
+!.env.example
+discovered.json
+ha_token
+*.token
+homeassistant/generated/
+scripts/generated/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

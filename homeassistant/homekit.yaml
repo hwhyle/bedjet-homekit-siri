@@ -1,0 +1,26 @@
+# Optional YAML alternative to creating a HomeKit Bridge in the UI.
+# A UI-created dedicated bridge is the recommended path (see HOMEKIT.md)
+# because it will not disturb an existing HomeKit integration.
+#
+# If you already use YAML for HomeKit, add a *new* list item — do not fold
+# these entities into a bridge that already has other accessories.
+# Pick a port that is not already used by another HomeKit entry.
+#
+# Replace CHANGE_ME entity IDs (or use the generated homekit.yaml from
+# scripts/generate_config.py).
+
+homekit:
+  - name: BedJet Bridge
+    port: 21065
+    filter:
+      include_entities:
+        - script.heat_my_side
+        - script.cool_my_side
+        - fan.CHANGE_ME
+    entity_config:
+      fan.CHANGE_ME:
+        name: My BedJet
+      script.heat_my_side:
+        name: Heat My Side
+      script.cool_my_side:
+        name: Cool My Side

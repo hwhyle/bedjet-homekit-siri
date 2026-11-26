@@ -1,0 +1,110 @@
+# ESPHome config for a single BedJet V3.
+# If you have two units (one per side of the bed), use bedjet-proxy-dual.yaml.
+#
+# The official BedJet component talks to the unit over BLE from this ESP32
+# directly (ble_client). It is not the same as Home Assistant's Bluetooth
+# Proxy integration — although you can keep bluetooth_proxy enabled on this
+# device for other BLE sensors if you want.
+#
+# Before flashing:
+#   1. Copy secrets.yaml.example to secrets.yaml and fill it in.
+#   2. Run:  python3 scripts/discover_bedjet_ble.py
+#      (on a computer near the BedJet with Bluetooth) and paste the MAC
+#      address into the substitutions below.
+#   3. Set board to match your ESP32. Common values: esp32dev,
+#      esp32-s3-devkitc-1, esp32-c3-devkitm-1.
+#
+# Official component docs: https://esphome.io/components/climate/bedjet/
+
+substitutions:
+  device_name: bedjet-proxy
+  board: esp32dev
+
+  # Paste the MAC from scripts/discover_bedjet_ble.py (or ESPHome logs).
+  bedjet_mac: "AA:BB:CC:DD:EE:FF"
+  # Short name: this is what Apple Home / Siri will use for fan percentage.
+  bedjet_name: "My BedJet"
+
+esphome:
+  name: ${device_name}
+  # Intentionally no device-level friendly_name. That prefix makes entity
+  # names too long for Siri ("BedJet Proxy My BedJet"). Keep names short.
+
+esp32:
+  board: ${board}
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+    on_begin:
+      then:
+        - logger.log: "Disconnecting BedJet BLE client for OTA..."
+        - switch.turn_off: bedjet_ble_switch
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "${device_name} Fallback"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+# Sync the BedJet clock from Home Assistant (optional but useful).
+time:
+  - platform: homeassistant
+    id: ha_time
+
+esp32_ble_tracker:
+
+ble_client:
+  - mac_address: ${bedjet_mac}
+    id: bedjet_ble
+
+bedjet:
+  - id: bedjet_hub
+    ble_client_id: bedjet_ble
+    time_id: ha_time
+
+climate:
+  - platform: bedjet
+    id: bedjet_climate
+    name: "${bedjet_name}"
+    bedjet_id: bedjet_hub
+
+fan:
+  - platform: bedjet
+    id: bedjet_fan
+    name: "${bedjet_name}"
+    bedjet_id: bedjet_hub
+
+sensor:
+  - platform: bedjet
+    bedjet_id: bedjet_hub
+    outlet_temperature:
+      name: "${bedjet_name} Outlet Temperature"
+    ambient_temperature:
+      name: "${bedjet_name} Ambient Temperature"
+
+# Toggle this off to free the BedJet so the official mobile app can
+# connect (only one BLE client can be connected at a time), or so an
+# OTA firmware update has enough radio time. ota.on_begin does this
+# automatically.
+switch:
+  - platform: ble_client
+    ble_client_id: bedjet_ble
+    id: bedjet_ble_switch
+    name: "${bedjet_name} BLE Connection"
+
+# Optional: leave this enabled if you also want this ESP32 to proxy other
+# BLE devices into Home Assistant. It is not required for BedJet control.
+# bluetooth_proxy:
+#   active: true

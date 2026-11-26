@@ -1,0 +1,72 @@
+# Home Assistant package: BedJet heat/cool scripts for Apple Home / Siri.
+#
+# Prefer generating this file so entity IDs are filled in automatically:
+#   python3 scripts/discover_ha_entities.py
+#   python3 scripts/generate_config.py --from discovered.json --side-name "My Side"
+#
+# If you are editing by hand, replace every CHANGE_ME value, then drop this
+# file in /config/packages/ and make sure packages are enabled:
+#
+#   # configuration.yaml
+#   homeassistant:
+#     packages: !include_dir_named packages
+#
+# Then restart Home Assistant (or reload scripts) and continue with the
+# HomeKit Bridge steps in README.md / homeassistant/HOMEKIT.md.
+
+script:
+  heat_my_side:
+    alias: "Heat My Side"
+    icon: mdi:heat-wave
+    mode: restart
+    description: "Set My BedJet to heat at 90°F with fan at 40%."
+    sequence:
+      - action: climate.set_hvac_mode
+        target:
+          entity_id: climate.CHANGE_ME
+        data:
+          hvac_mode: heat
+      - action: climate.set_temperature
+        target:
+          entity_id: climate.CHANGE_ME
+        data:
+          temperature: 90
+      - action: climate.set_fan_mode
+        target:
+          entity_id: climate.CHANGE_ME
+        data:
+          fan_mode: "40%"
+      - action: fan.set_percentage
+        target:
+          entity_id: fan.CHANGE_ME
+        data:
+          percentage: 40
+
+  cool_my_side:
+    alias: "Cool My Side"
+    icon: mdi:snowflake
+    mode: restart
+    description: "Set My BedJet to cool (fan_only) at the lowest temp (66°F) with fan at 40%."
+    sequence:
+      - action: climate.set_hvac_mode
+        target:
+          entity_id: climate.CHANGE_ME
+        data:
+          hvac_mode: fan_only
+      # fan_only sometimes rejects a target temperature; keep going if it does.
+      - action: climate.set_temperature
+        target:
+          entity_id: climate.CHANGE_ME
+        data:
+          temperature: 66
+        continue_on_error: true
+      - action: climate.set_fan_mode
+        target:
+          entity_id: climate.CHANGE_ME
+        data:
+          fan_mode: "40%"
+      - action: fan.set_percentage
+        target:
+          entity_id: fan.CHANGE_ME
+        data:
+          percentage: 40

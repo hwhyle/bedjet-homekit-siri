@@ -1,0 +1,37 @@
+{
+  "ha_version": "2026.11.2",
+  "temperature_unit": "°F",
+  "sides": [
+    {
+      "climate_entity": "climate.bedjet_proxy_my_bedjet",
+      "climate_name": "My BedJet",
+      "climate_state": "off",
+      "fan_entity": "fan.bedjet_proxy_my_bedjet",
+      "fan_name": "My BedJet",
+      "fan_state": "off",
+      "min_temp": 66,
+      "max_temp": 109,
+      "hvac_modes": ["off", "heat", "fan_only", "dry"],
+      "preset_modes": ["boost", "EXT HT", "M1", "M2", "M3"],
+      "fan_modes": ["5%", "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%", "50%", "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%"],
+      "percentage_step": 5.0
+    },
+    {
+      "climate_entity": "climate.bedjet_proxy_other_bedjet",
+      "climate_name": "Other BedJet",
+      "climate_state": "off",
+      "fan_entity": "fan.bedjet_proxy_other_bedjet",
+      "fan_name": "Other BedJet",
+      "fan_state": "off",
+      "min_temp": 66,
+      "max_temp": 109,
+      "hvac_modes": ["off", "heat", "fan_only", "dry"],
+      "preset_modes": ["boost", "EXT HT", "M1", "M2", "M3"],
+      "fan_modes": ["5%", "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%", "50%", "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%"],
+      "percentage_step": 5.0
+    }
+  ],
+  "unpaired_fans": [],
+  "climate_count": 2,
+  "fan_count": 2
+}
